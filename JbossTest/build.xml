@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Jboss Test" default="deploy" basedir=".">
+  
+  <property name="project" value="jbosstest"/>
+  
+  <property name="jarname" value="jbosstestclasses.jar"/>
+  <property name="warname" value="jbosstest.war"/>
+  <property name="src" location="src"/>
+  <property name="bin" location="bin"/>
+  <property name="web" location="web"/>
+  <property name="lib" location="lib"/>
+  <property name="build_dir" location="build"/>
+  <property name="deploy_dir" location="c:/JBoss/standalone/deployments"/>
+  
+  <property name="database_driver_class_name" value = "org.postgresql.Driver"/>
+  <property name="database_url" value="jdbc:postgresql://localhost:5432/postgres"/>
+	
+
+  <property name="database_driver" value = "postgresql-9.1-901.jdbc4.jar" />
+  <property name = "password" value = "madiken"/>	
+  <property name = "user" value = "madiken"/>
+  	
+  	
+  	<path id = "classpath">
+  		<pathelement location = "${lib}/${database_driver}"/>
+	</path>
+	
+  <target name="deploy" depends="build, drop tables, create tables">
+    <copy todir="${deploy_dir}">
+      <fileset file="${build_dir}/${warname}"/>
+    </copy>
+  	<touch><fileset file="${deploy_dir}/${warname}.dodeploy" /></touch>
+  </target>
+  
+  	
+	
+	
+  <target name="build">
+    <copy todir="${build_dir}/${project}/">
+      <fileset dir="${web}"/>
+    </copy>
+    
+    <javac srcdir="${src}" destdir="${bin}" source="1.6"/>
+    <jar destfile="${build_dir}/${project}/WEB-INF/lib/${jarname}" basedir="bin"/>
+  	<jar destfile="${build_dir}/${warname}" basedir="${build_dir}/${project}"/>
+  </target>
+  
+
+	
+	
+	<target name = "create tables">
+	  		<sql
+	  		       classpathref="classpath"
+	  		       driver="${database_driver_class_name}"
+	  	           url="${database_url}"
+	  		       userid="${user}"
+	  		       password="${password}"
+	  		>
+	  	    create table guestbook(
+	  			id integer,
+	  			name varchar(30), 
+	  			text text,
+	  			time timestamp
+	  		);  	
+	  	  	
+	  		   
+	  	    
+	  		</sql>
+	  	  </target> 	
+
+
+	<target name = "drop tables">
+		  		<sql
+		  		       classpathref="classpath"
+		  		       driver="${database_driver_class_name}"
+		  	           url="${database_url}"
+		  		       userid="${user}"
+		  		       password="${password}"
+		  		>
+		  	    drop table if exists guestbook;  	
+		  	  	</sql>
+		  	  </target> 	
+	
+	<target name = "insert test data">
+			  		<sql
+			  		       classpathref="classpath"
+			  		       driver="${database_driver_class_name}"
+			  	           url="${database_url}"
+			  		       userid="${user}"
+			  		       password="${password}"
+			  		>
+			  	    insert into guestbook (name, text) values ('Sonny Corleone', 'hello, brother!');  	
+			  	  	</sql>
+			  	  </target> 
+	
+
+</project>
